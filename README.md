@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
+  
 </p>
 <br/>
 
