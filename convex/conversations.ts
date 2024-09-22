@@ -88,7 +88,6 @@ export const getMyConversations = query({
           .order("desc")
           .take(1);
 
-        // return should be in this order, otherwise _id field will be overwritten
         return {
           ...userDetails,
           ...conversation,
