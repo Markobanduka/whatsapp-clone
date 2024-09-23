@@ -17,6 +17,7 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import toast from "react-hot-toast";
+import { useConversationStore } from "@/store/chat-store";
 
 const UserListDialog = () => {
   const [selectedUsers, setSelectedUsers] = useState<Id<"users">[]>([]);
@@ -33,6 +34,8 @@ const UserListDialog = () => {
   const me = useQuery(api.users.getMe);
   const users = useQuery(api.users.getUsers);
 
+  const { setSelectedConversation } = useConversationStore();
+
   const handleCreateConversation = async () => {
     if (selectedUsers.length === 0) return;
     setIsLoading(true);
@@ -40,7 +43,6 @@ const UserListDialog = () => {
       const isGroup = selectedUsers.length > 1;
 
       let conversationId;
-
       if (!isGroup) {
         conversationId = await createConversation({
           participants: [...selectedUsers, me?._id!],
@@ -71,22 +73,24 @@ const UserListDialog = () => {
       setGroupName("");
       setSelectedImage(null);
 
-      // TODO => Update a global state called "selectedConversation"
       const conversationName = isGroup
         ? groupName
         : users?.find((user) => user._id === selectedUsers[0])?.name;
 
-      // setSelectedConversation({
-      // 	_id: conversationId,
-      // 	participants: selectedUsers,
-      // 	isGroup,
-      // 	image: isGroup ? renderedImage : users?.find((user) => user._id === selectedUsers[0])?.image,
-      // 	name: conversationName,
-      // 	admin: me?._id!,
-      // });
-    } catch (error) {
+      setSelectedConversation({
+        _id: conversationId,
+        participants: selectedUsers,
+        isGroup,
+        image: isGroup
+          ? renderedImage
+          : users?.find((user) => user._id === selectedUsers[0])?.image,
+        name: conversationName,
+        admin: me?._id!,
+      });
+    } catch (err) {
       toast.error("Failed to create conversation");
-      console.error(error);
+      console.error(err);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -120,12 +124,13 @@ const UserListDialog = () => {
             />
           </div>
         )}
+
         <input
           type="file"
           accept="image/*"
           ref={imgRef}
-          onChange={(e) => setSelectedImage(e.target.files![0])}
           hidden
+          onChange={(e) => setSelectedImage(e.target.files![0])}
         />
         {selectedUsers.length > 1 && (
           <>
@@ -194,7 +199,6 @@ const UserListDialog = () => {
               isLoading
             }
           >
-            {/* spinner */}
             {isLoading ? (
               <div className="w-5 h-5 border-t-2 border-b-2  rounded-full animate-spin" />
             ) : (
