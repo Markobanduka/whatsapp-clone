@@ -23,7 +23,11 @@ const MessageContainer = () => {
       <div className="mx-12 flex flex-col gap-3">
         {messages?.map((msg, idx) => (
           <div key={msg._id} ref={lastMessageRef}>
-            <ChatBubble message={msg} me={me} />s
+            <ChatBubble
+              message={msg}
+              me={me}
+              previousMessage={idx > 0 ? messages[idx - 1] : undefined}
+            />
           </div>
         ))}
       </div>
