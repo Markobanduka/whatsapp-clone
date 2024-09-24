@@ -45,21 +45,20 @@ export const sendTextMessage = mutation({
       messageType: "text",
     });
 
-    // TODO => add @gpt check later
-    // if (args.content.startsWith("@gpt")) {
-    // 	// Schedule the chat action to run immediately
-    // 	await ctx.scheduler.runAfter(0, api.openai.chat, {
-    // 		messageBody: args.content,
-    // 		conversation: args.conversation,
-    // 	});
-    // }
+    if (args.content.startsWith("@gpt")) {
+      // Schedule the chat action to run immediately
+      await ctx.scheduler.runAfter(0, api.openai.chat, {
+        messageBody: args.content,
+        conversation: args.conversation,
+      });
+    }
 
-    // if (args.content.startsWith("@dall-e")) {
-    // 	await ctx.scheduler.runAfter(0, api.openai.dall_e, {
-    // 		messageBody: args.content,
-    // 		conversation: args.conversation,
-    // 	});
-    // }
+    if (args.content.startsWith("@dall-e")) {
+      await ctx.scheduler.runAfter(0, api.openai.dall_e, {
+        messageBody: args.content,
+        conversation: args.conversation,
+      });
+    }
   },
 });
 
@@ -106,16 +105,15 @@ export const getMessages = query({
           return { ...message, sender: { name: "ChatGPT", image } };
         }
         let sender;
-        // Check if sender profile is in cache
+
         if (userProfileCache.has(message.sender)) {
           sender = userProfileCache.get(message.sender);
         } else {
-          // Fetch sender profile from the database
           sender = await ctx.db
             .query("users")
             .filter((q) => q.eq(q.field("_id"), message.sender))
             .first();
-          // Cache the sender profile
+
           userProfileCache.set(message.sender, sender);
         }
 
